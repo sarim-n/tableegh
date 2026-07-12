@@ -1,4 +1,4 @@
-import { useTranslations, useLocale } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import HeroSection from "@/components/HeroSection";
 import SectionHeading from "@/components/SectionHeading";
@@ -9,9 +9,9 @@ import prisma from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export default async function HomePage() {
-  const t = useTranslations("home");
-  const locale = useLocale();
+export default async function HomePage({ params }) {
+  const { locale } = await params;
+  const t = await getTranslations("home");
   const isUrdu = locale === "ur";
 
   const featuredResources = await prisma.resource.findMany({
