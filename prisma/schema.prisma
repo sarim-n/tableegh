@@ -1,0 +1,45 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Event {
+  id            String   @id @default(uuid())
+  titleEn       String
+  titleUr       String
+  descriptionEn String?
+  descriptionUr String?
+  locationEn    String
+  locationUr    String
+  category      String   // e.g. "ijtema", "bayan", "mashwara", "gasht"
+  date          String   // e.g. "2026-11-07"
+  endDate       String?  // e.g. "2026-11-09"
+  time          String?  // e.g. "After Fajr"
+  createdAt     DateTime @default(now())
+}
+
+model Resource {
+  id            String   @id @default(uuid())
+  titleEn       String
+  titleUr       String
+  descriptionEn String?
+  descriptionUr String?
+  type          String   // e.g. "article", "audio", "video", "book"
+  category      String   // e.g. "dawah", "education", "literature"
+  author        String?
+  duration      String?  // e.g. "45 min" (for audio/video)
+  link          String   // URL to resource (article PDF, audio file, video URL, etc.)
+  date          String   // Release or publish date e.g. "2024-03-15"
+  createdAt     DateTime @default(now())
+}

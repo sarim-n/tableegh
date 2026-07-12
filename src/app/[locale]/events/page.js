@@ -1,16 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import HeroSection from "@/components/HeroSection";
 import EventCard from "@/components/EventCard";
-import { events } from "@/data/events";
 
 export default function EventsPage() {
   const t = useTranslations("events");
   const locale = useLocale();
   const isUrdu = locale === "ur";
   const [filter, setFilter] = useState("all");
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/events")
+      .then((res) => res.json())
+      .then((data) => {
+        setEvents(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
   const categories = [
     { key: "all", label: t("filterAll") },
@@ -47,7 +61,13 @@ export default function EventsPage() {
           </div>
 
           {/* Events grid */}
-          {filteredEvents.length > 0 ? (
+          {loading ? (
+            <div className="py-12 text-center text-stone-500">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-600 border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+                <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![rect(0,0,0,0)]">Loading...</span>
+              </div>
+            </div>
+          ) : filteredEvents.length > 0 ? (
             <div className="grid gap-6 lg:grid-cols-2">
               {filteredEvents.map((e) => (
                 <EventCard

@@ -5,16 +5,24 @@ import SectionHeading from "@/components/SectionHeading";
 import ContentCard from "@/components/ContentCard";
 import EventCard from "@/components/EventCard";
 import IslamicPattern from "@/components/IslamicPattern";
-import { events } from "@/data/events";
-import { resources } from "@/data/resources";
+import prisma from "@/lib/prisma";
 
-export default function HomePage() {
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
   const t = useTranslations("home");
   const locale = useLocale();
   const isUrdu = locale === "ur";
 
-  const featuredResources = resources.slice(0, 3);
-  const upcomingEvents = events.slice(0, 3);
+  const featuredResources = await prisma.resource.findMany({
+    take: 3,
+    orderBy: { date: "desc" },
+  });
+  
+  const upcomingEvents = await prisma.event.findMany({
+    take: 3,
+    orderBy: { date: "asc" },
+  });
 
   const principles = [
     {

@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import HeroSection from "@/components/HeroSection";
 import ContentCard from "@/components/ContentCard";
-import { resources } from "@/data/resources";
 
 export default function ResourcesPage() {
   const t = useTranslations("resources");
@@ -12,6 +11,21 @@ export default function ResourcesPage() {
   const isUrdu = locale === "ur";
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [resources, setResources] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/resources")
+      .then((res) => res.json())
+      .then((data) => {
+        setResources(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
 
   const types = [
     { key: "all", label: t("filterAll") },
@@ -30,7 +44,7 @@ export default function ResourcesPage() {
       const desc = isUrdu ? r.descriptionUr : r.descriptionEn;
       return (
         title.toLowerCase().includes(s) ||
-        desc.toLowerCase().includes(s) ||
+        (desc && desc.toLowerCase().includes(s)) ||
         (r.author && r.author.toLowerCase().includes(s))
       );
     });
@@ -75,7 +89,13 @@ export default function ResourcesPage() {
           </div>
 
           {/* Resources grid */}
-          {filteredResources.length > 0 ? (
+          {loading ? (
+            <div className="py-12 text-center text-stone-500">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-600 border-e-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+                <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![rect(0,0,0,0)]">Loading...</span>
+              </div>
+            </div>
+          ) : filteredResources.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filteredResources.map((r) => (
                 <ContentCard
